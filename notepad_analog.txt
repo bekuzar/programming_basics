@@ -1,0 +1,151 @@
+import tkinter as tk
+from tkinter import ttk, filedialog, messagebox, font
+
+
+class ModernTextEditor:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Modern Text Editor")
+        self.root.geometry("900x600")
+        self.root.configure(bg="#2e2e2e")
+
+        self.current_file = None
+        self.font_family = "Consolas"
+        self.font_size = 14
+        self.is_bold = False
+        self.is_italic = False
+
+        self.setup_ui()
+        self.bind_shortcuts()
+
+    def setup_ui(self):
+        self.setup_toolbar()
+        self.setup_text_area()
+        self.setup_menu()
+
+    def setup_toolbar(self):
+        toolbar = ttk.Frame(self.root)
+        toolbar.pack(side="top", fill="x")
+
+        self.font_box = ttk.Combobox(toolbar, values=font.families(), width=25)
+        self.font_box.set(self.font_family)
+        self.font_box.bind("<<ComboboxSelected>>", self.update_font)
+        self.font_box.pack(side="left", padx=5)
+
+        self.size_box = ttk.Spinbox(toolbar, from_=8, to=72, width=5)
+        self.size_box.set(self.font_size)
+        self.size_box.bind("<Return>", self.update_font)
+        self.size_box.pack(side="left", padx=5)
+
+        bold_btn = ttk.Button(toolbar, text="B", width=3, command=self.toggle_bold)
+        bold_btn.pack(side="left")
+
+        italic_btn = ttk.Button(toolbar, text="I", width=3, command=self.toggle_italic)
+        italic_btn.pack(side="left")
+
+    def setup_text_area(self):
+        self.text_area = tk.Text(
+            self.root,
+            wrap="word",
+            undo=True,
+            bg="#1e1e1e",
+            fg="#ffffff",
+            insertbackground="white",
+            font=(self.font_family, self.font_size),
+            relief="flat",
+            padx=10,
+            pady=10
+        )
+        self.text_area.pack(fill="both", expand=True, padx=2, pady=(0, 2))
+
+        scrollbar = ttk.Scrollbar(self.text_area, command=self.text_area.yview)
+        self.text_area.config(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+
+    def setup_menu(self):
+        menu = tk.Menu(self.root)
+
+        file_menu = tk.Menu(menu, tearoff=0)
+        file_menu.add_command(label="New", command=self.new_file, accelerator="Ctrl+N")
+        file_menu.add_command(label="Open", command=self.open_file, accelerator="Ctrl+O")
+        file_menu.add_command(label="Save", command=self.save_file, accelerator="Ctrl+S")
+        file_menu.add_command(label="Save As", command=self.save_file_as)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.root.quit)
+        menu.add_cascade(label="File", menu=file_menu)
+
+        edit_menu = tk.Menu(menu, tearoff=0)
+        edit_menu.add_command(label="Cut", command=lambda: self.text_area.event_generate("<<Cut>>"))
+        edit_menu.add_command(label="Copy", command=lambda: self.text_area.event_generate("<<Copy>>"))
+        edit_menu.add_command(label="Paste", command=lambda: self.text_area.event_generate("<<Paste>>"))
+        edit_menu.add_command(label="Select All", command=lambda: self.text_area.tag_add("sel", "1.0", "end"))
+        menu.add_cascade(label="Edit", menu=edit_menu)
+
+        self.root.config(menu=menu)
+
+    def update_font(self, event=None):
+        family = self.font_box.get()
+        size = int(self.size_box.get())
+        self.font_family = family
+        self.font_size = size
+        font_config = [family, size]
+        if self.is_bold:
+            font_config.append("bold")
+        if self.is_italic:
+            font_config.append("italic")
+        self.text_area.config(font=tuple(font_config))
+
+    def toggle_bold(self):
+        self.is_bold = not self.is_bold
+        self.update_font()
+
+    def toggle_italic(self):
+        self.is_italic = not self.is_italic
+        self.update_font()
+
+    def new_file(self):
+        self.text_area.delete(1.0, tk.END)
+        self.current_file = None
+        self.root.title("Modern Text Editor - New File")
+
+    def open_file(self):
+        path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
+        if path:
+            with open(path, "r", encoding="utf-8") as f:
+                content = f.read()
+            self.text_area.delete(1.0, tk.END)
+            self.text_area.insert(tk.END, content)
+            self.current_file = path
+            self.root.title(f"Modern Text Editor - {path}")
+
+    def save_file(self):
+        if self.current_file:
+            with open(self.current_file, "w", encoding="utf-8") as f:
+                f.write(self.text_area.get(1.0, tk.END))
+        else:
+            self.save_file_as()
+
+    def save_file_as(self):
+        path = filedialog.asksaveasfilename(defaultextension=".txt")
+        if path:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(self.text_area.get(1.0, tk.END))
+            self.current_file = path
+            self.root.title(f"Modern Text Editor - {path}")
+
+    def bind_shortcuts(self):
+        self.text_area.bind("<Control-n>", lambda e: self.new_file())
+        self.text_area.bind("<Control-o>", lambda e: self.open_file())
+        self.text_area.bind("<Control-s>", lambda e: self.save_file())
+
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    style = ttk.Style()
+    style.theme_use("clam")
+    style.configure("TFrame", background="#2e2e2e")
+    style.configure("TButton", background="#3e3e3e", foreground="#ffffff")
+    style.configure("TCombobox", fieldbackground="#3e3e3e", background="#2e2e2e", foreground="#ffffff")
+    editor = ModernTextEditor(root)
+    root.mainloop()
