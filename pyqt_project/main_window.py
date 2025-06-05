@@ -65,6 +65,7 @@ class Ui_MainWindow(object):
         self.ed_password = QLineEdit(self.verticalLayoutWidget)
         self.ed_password.setObjectName(u"ed_password")
         self.ed_password.setStyleSheet(u"border: solid; height: 30px; border-radius: 10px; margin: 5px")
+        self.ed_password.setEchoMode(QLineEdit.EchoMode.Password)
 
         self.horizontalLayout_3.addWidget(self.ed_password)
 
@@ -81,6 +82,7 @@ class Ui_MainWindow(object):
         self.ed_confirm_pass = QLineEdit(self.verticalLayoutWidget)
         self.ed_confirm_pass.setObjectName(u"ed_confirm_pass")
         self.ed_confirm_pass.setStyleSheet(u"border: solid; height: 30px; border-radius: 10px; margin: 5px")
+        self.ed_confirm_pass.setEchoMode(QLineEdit.EchoMode.Password)
 
         self.horizontalLayout_4.addWidget(self.ed_confirm_pass)
 

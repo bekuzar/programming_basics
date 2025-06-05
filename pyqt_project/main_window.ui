@@ -84,6 +84,9 @@
          <property name="text">
           <string/>
          </property>
+         <property name="echoMode">
+          <enum>QLineEdit::EchoMode::Password</enum>
+         </property>
          <property name="placeholderText">
           <string>password</string>
          </property>
@@ -110,6 +113,9 @@
          </property>
          <property name="text">
           <string/>
+         </property>
+         <property name="echoMode">
+          <enum>QLineEdit::EchoMode::Password</enum>
          </property>
          <property name="placeholderText">
           <string>confirm password</string>
